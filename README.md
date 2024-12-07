@@ -18,7 +18,7 @@ The tool checks the game archives using the [CUE4Parse](https://github.com/Fabia
 
 ```console
 > UnrealReZen.exe --help
-UnrealReZen 1.0.0
+UnrealReZen 1.1.0
 Copyright (C) 2024 UnrealReZen
 USAGE:
 Making a patch for a ue5 game:
@@ -38,6 +38,10 @@ Making a patch for a ue5 game:
   --compression-format    (Default: Zlib) Compression format (None, Zlib, Oodle, LZ4).
 
   --mount-point           (Default: ../../../) Mount point of packed archive
+
+  --custom-versions       File path to a .json file listing the custom versions.
+
+  --local-mapping         File path to a .usmap file for local mapping.
 
   --help                  Display this help screen.
 
