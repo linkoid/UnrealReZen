@@ -1,4 +1,7 @@
-﻿namespace UnrealReZen.Core
+﻿using CUE4Parse.UE4.Objects.Core.Serialization;
+using CUE4Parse.UE4.Objects.Core.Misc;
+
+namespace UnrealReZen.Core
 {
     public static class Constants
     {
@@ -13,5 +16,6 @@
         public const int CompSize = 0x10000;
         public const int PackUtocVersion = 3;
         public const int CompressionNameLength = 32;
+        public static IEnumerable<FCustomVersion> DefaultCustomVersions = [ new FCustomVersion(new FGuid("00000000000000000000000000000000"), 0) ];
     }
 }

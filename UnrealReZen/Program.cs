@@ -2,10 +2,13 @@
 using CommandLine.Text;
 using CUE4Parse.Encryption.Aes;
 using CUE4Parse.FileProvider;
+using CUE4Parse.MappingsProvider;
 using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.IO.Objects;
 using CUE4Parse.UE4.Objects.Core.Misc;
+using CUE4Parse.UE4.Objects.Core.Serialization;
 using CUE4Parse.UE4.Versions;
+using Newtonsoft.Json;
 using Serilog;
 using UnrealReZen.Core;
 using UnrealReZen.Core.Helpers;
@@ -34,6 +37,12 @@ namespace UnrealReZen
 
         [Option("mount-point", Required = false, Default = "../../../", HelpText = "Mount point of packed archive")]
         public string MountPoint { get; set; }
+
+        [Option("custom-versions", Required = false, Default = null, HelpText = "File path to a .json file listing the custom versions.")]
+        public string CustomVersions { get; set; }
+
+        [Option("local-mapping", Required = false, Default = null, HelpText = "File path to a .usmap file for local mapping.")]
+        public string LocalMapping { get; set; }
 
         [Usage(ApplicationAlias = "UnrealReZen.exe")]
         public static IEnumerable<Example> Examples
@@ -96,10 +105,20 @@ namespace UnrealReZen
             Log.Information("Loading Game Archives...");
             try
             {
-                provider = new DefaultFileProvider(opts.GameDirectory, SearchOption.AllDirectories, true, new VersionContainer((EGame)engineVersion));
+                var customVersions = new FCustomVersionContainer(JsonHelpers.ReadCustomVersionsJson(opts.CustomVersions) ?? Constants.DefaultCustomVersions);
+                var versionContainer = new VersionContainer(
+                    game: (EGame)engineVersion,
+                    customVersions: customVersions
+                );
+                provider = new DefaultFileProvider(opts.GameDirectory, SearchOption.AllDirectories, true, versionContainer);
                 provider.Initialize();
                 provider.SubmitKey(new FGuid(), aesKey);
                 provider.LoadLocalization(ELanguage.English);
+
+                if (opts.LocalMapping != null)
+                {
+                    provider.MappingsContainer = new FileUsmapTypeMappingsProvider(opts.LocalMapping);
+                }
 
                 if (provider.RequiredKeys.Count > 0 && provider.Keys.Count == 0)
                 {
